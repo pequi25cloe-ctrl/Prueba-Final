@@ -47,14 +47,16 @@ def login():
         user = valida_usuario(username, password)
 
         if user:
-            session["user_id"] = user["user_id"]
-            session["api_key"] = user["api_key"]
+            usuario = user.to_dict()
+            session["user_id"] = usuario["id"]
+            session["api_key"] = usuario["api_key"]
             return redirect(url_for("dashboard"))
 
         if not user:
             error = "el campo no puede estar vacio"
             return render_template("login.html", error=error)
         return render_template ("login.html", user=user)
+
 
     return render_template("login.html", message=msg_out)
 
