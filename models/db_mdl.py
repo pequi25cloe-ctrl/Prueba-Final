@@ -1,5 +1,6 @@
+import os
 import uuid
-
+import sqlalchemy
 from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from contextlib import contextmanager
@@ -8,7 +9,12 @@ from urllib.parse import quote
 # ----------------------------------------------------
 # Configuración de la Base de Datos y el Modelo
 # ----------------------------------------------------
+DB_FOLDER = 'data'
+DB_FILE = os.path.join(DB_FOLDER, 'products.db')
+DATABASE_URL = f"sqlite:///{DB_FILE}"
 
+if not os.path.exists(DB_FOLDER):
+    os.makedirs(DB_FOLDER)
 # ¡IMPORTANTE!: Reemplaza 'usuario', 'clave', 'host' y 'nombre_db' con tus credenciales reales de MySQL.
 # Asegúrate de haber instalado 'PyMySQL' (pip install PyMySQL).
 DATABASE_USER = "dbflaskinacap"
@@ -68,7 +74,6 @@ class Producto(Base):
                 # Incluimos el nombre del mercado para facilitar la lectura en el frontend
                 "origen_mercado": self.origen_mercado.nombre if self.origen_mercado else None
                 }
-
 
 # ----------------------------------------------------
 # Sesiones locales para interactuar con la DB
