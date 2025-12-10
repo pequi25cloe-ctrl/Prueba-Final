@@ -8,14 +8,6 @@ app = Flask(__name__, template_folder='templates')
 app.register_blueprint(rutas, url_prefix="/api")
 app.secret_key = secrets.token_hex(24)
 
-def initialize_database():
-    try:
-        if not is_db_model_created(["users", "products"]):
-            create_db_and_tables()
-            print("Base de datos y tablas inicializadas con exito con SQLAlchemy.")
-    except Exception as e:
-        print(f"ERROR: Fallo la inicializacion de la base de datos: {e}")
-
 @app.route("/")
 def index():
     if "user_id" in session:
