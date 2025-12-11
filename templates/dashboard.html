@@ -20,26 +20,27 @@
         <ul class="endpoint-list">
             <li class="endpoint-item get">
                 <span class="method get-m">GET</span>
-                <span class="path">/api/products?page=1&per_page=5</span>
+                <span class="path">/api/productos?page=1&per_page=5</span>
                 <p><strong>Descripción:</strong> Recupera un listado paginado de productos. Los parámetros <code>page</code> y <code>per_page</code> son opcionales.</p>
                 <p><strong>Retorno:</strong> JSON con lista de productos y metadatos de paginación.</p>
             </li>
-            <li class="endpoint-item get">
-                <span class="method get-m">GET</span>
-                <span class="path">/api/products/&lt;int:product_id&gt;</span>
-                <p><strong>Descripción:</strong> Recupera los detalles de un producto específico utilizando su ID.</p>
-                <p><strong>Retorno:</strong> JSON del objeto producto o 404 si no existe.</p>
-            </li>
             <li class="endpoint-item post">
                 <span class="method post-m">POST</span>
-                <span class="path">/api/products</span>
-                <p><strong>Descripción:</strong> Crea un nuevo producto. Requiere un cuerpo JSON con <code>name</code>, <code>price</code> y opcionalmente <code>description</code>.</p>
-                <p><strong>Ejemplo JSON:</strong> <code>{"name": "Tablet Pro", "price": 899.99, "description": "10 pulgadas, 128GB"}</code></p>
+                <span class="path">/api/productos</span>
+                <p><strong>Descripción:</strong> Crea un nuevo producto. Requiere un cuerpo JSON con <code>idOrigen</code>, <code>nombre</code>, <code>uMedida</code> y <code>precio</code>.</p>
+                <p><strong>Ejemplo JSON:</strong> <code>{"idOrigen": "2", "nombre": "Papas", "uMedida": "Saco", "precio": 899.99}</code></p>
                 <p><strong>Retorno:</strong> JSON con el ID del producto creado (código 201).</p>
+            </li>
+            <li class="endpoint-item put">
+                <span class="method put-m">PUT</span>
+                <span class="path">/api/productos</span>
+                <p><strong>Descripción:</strong> Actualiza un producto. Requiere un cuerpo JSON con todos o alguno de los siguientes campos <code>idOrigen</code>, <code>nombre</code>, <code>uMedida</code> y <code>precio</code>.</p>
+                <p><strong>Ejemplo JSON:</strong> <code>{"idOrigen": "2", "nombre": "Papas", "uMedida": "Saco", "precio": 899.99}</code></p>
+                <p><strong>Retorno:</strong> JSON con el ID del producto modificado (código 200).</p>
             </li>
             <li class="endpoint-item delete">
                 <span class="method delete-m">DELETE</span>
-                <span class="path">/api/products/&lt;int:product_id&gt;</span>
+                <span class="path">/api/productos/&lt;int:product_id&gt;</span>
                 <p><strong>Descripción:</strong> Elimina un producto específico utilizando su ID.</p>
                 <p><strong>Retorno:</strong> JSON de confirmación o 404 si no existe.</p>
             </li>
