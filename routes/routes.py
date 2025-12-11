@@ -1,48 +1,51 @@
+from functools import wraps
 from flask import Blueprint, request, jsonify
 from sqlalchemy.orm import joinedload
-from models.db_mdl import get_db, Producto, Mercado
+from models.db_mdl import get_db, Producto, Mercado, Usuario
 
 rutas = Blueprint("rutas", __name__)
-# Verifica si se ha enviado una API-Key en la cabecera de la solicitud
-def get_api_key_from_request():
-    # Verifica la cabecera, luego otros parámetros del request
-    api_key = request.headers.get('X-API-Key') or request.args.get('api_key')
-    return api_key
 
-# --- Decorador de Autenticación Simple ---
-def require_auth(f):
-    """Decorador simple para verificar si el usuario está logeado."""
+def require_api_key(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        key = request.headers.get("X-API-Key") or request.args.get("api_key")
 
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # Verifica si se envía API-Key en el request y retorna un error si no existe
-        api_key = get_api_key_from_request()
-        if not api_key:
-            return jsonify({'error': 'API key required'}), 401
-        # Se realiza validación con la base de datos
-        user = is_user_api_key(api_key)
-        # Si no hay usuario para el API Key enviado, retorna error
-        if not user:
-            # Devuelve una respuesta JSON si no está autenticado
-            return jsonify({'message': 'Acceso no autorizado. API Key inválida.'}), 403
-        # se agrega el user a las variables del request
-        request.current_user = user
-        return f(*args, **kwargs)
+        if not key:
+            return {"error": "API Key requerida"}, 401
 
-    return decorated_function
+        try:
+            with get_db() as db:
+                user = db.query(Usuario).filter(Usuario.api_key == key).first()
+
+                if not user:
+                    return {"error": "API Key inválida"}, 403
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+        return func(*args, **kwargs)
+    return wrapper
 
 @rutas.route("/productos", methods=["GET"])
+@require_api_key
 def listar_productos():
     """Listar productos incluyendo el nombre de su mercado"""
     try:
         with get_db() as db:
             # Usamos joinedload para optimizar la consulta y traer el nombre del mercado
-            productos = db.query(Producto).options(joinedload(Producto.origen_mercado)).all()
+            page_get = request.args.get("page")
+            per_page_get = request.args.get("per_page")
+
+            page = int(page_get) if page_get else 1
+            per_page = int(per_page_get) if per_page_get else 5
+
+            offset = (page - 1) * per_page
+
+            productos = db.query(Producto).options(joinedload(Producto.origen_mercado)).offset(offset).limit(per_page).all()
             return jsonify([p.to_dict() for p in productos]), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @rutas.route("/productos", methods=["POST"])
+@require_api_key
 def crear_producto():
     data = request.get_json()
     reqFld = ['nombre', 'idOrigen', 'uMedida', 'precio']
@@ -71,6 +74,7 @@ def crear_producto():
         return jsonify({"error": str(e)}), 500
 
 @rutas.route("/productos/<int:idprd>", methods=["PUT"])
+@require_api_key
 def actualizar_producto(idprd):
     data = request.get_json()
 
@@ -100,6 +104,7 @@ def actualizar_producto(idprd):
         return jsonify({"error": str(e)}), 500
 
 @rutas.route("/productos/<int:idprd>", methods=["DELETE"])
+@require_api_key
 def eliminar_producto(idprd):
     try:
         with get_db() as db:
