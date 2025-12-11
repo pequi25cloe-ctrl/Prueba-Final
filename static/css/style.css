@@ -111,12 +111,22 @@
     border-left: 5px solid;
 }
 
+.endpoint-item code {
+    font-style: italic;
+    font-weight: 600;
+    color: #000055;
+}
+
 .get {
     border-left-color: #28a745;
 }
 
 .post {
     border-left-color: #ffc107;
+}
+
+.put {
+    border-left-color: #fff247;
 }
 
 .delete {
@@ -139,6 +149,11 @@
 
 .method.post-m {
     background-color: #ffc107;
+    color: #333;
+}
+
+.method.put-m {
+    background-color: #fff247;
     color: #333;
 }
 
