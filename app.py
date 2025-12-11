@@ -62,8 +62,19 @@ def login():
 
 @app.route("/logout")
 def logout():
-    session.pop("user_id", None)
-    return redirect(url_for("index"))
+    try:
+        with get_db() as db:
+            user = db.query(Usuario).filter(Usuario.id == session["user_id"]).first()
+            if user:
+                user.api_key = ""
+
+                db.commit()
+
+                session.pop("user_id", None)
+                return redirect(url_for("index"))
+    except Exception as e:
+        return {"error": str(e)}
+
 
 @app.route("/dashboard")
 def dashboard():
