@@ -1,6 +1,5 @@
-import os
 import uuid
-import sqlalchemy
+
 from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from contextlib import contextmanager
@@ -9,12 +8,7 @@ from urllib.parse import quote
 # ----------------------------------------------------
 # Configuración de la Base de Datos y el Modelo
 # ----------------------------------------------------
-DB_FOLDER = 'data'
-DB_FILE = os.path.join(DB_FOLDER, 'products.db')
-DATABASE_URL = f"sqlite:///{DB_FILE}"
 
-if not os.path.exists(DB_FOLDER):
-    os.makedirs(DB_FOLDER)
 # ¡IMPORTANTE!: Reemplaza 'usuario', 'clave', 'host' y 'nombre_db' con tus credenciales reales de MySQL.
 # Asegúrate de haber instalado 'PyMySQL' (pip install PyMySQL).
 DATABASE_USER = "dbflaskinacap"
@@ -80,11 +74,6 @@ class Producto(Base):
 # ----------------------------------------------------
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
-# ----------------------------------------------------
-# Función de Control de Conexión (Context Manager)
-# ----------------------------------------------------
-
 @contextmanager
 def get_db():
     """
@@ -100,19 +89,6 @@ def get_db():
         raise e
     finally:
         db.close()
-
-
-# ----------------------------------------------------
-# Función de Inicialización
-# ----------------------------------------------------
-
-"""
-TODO(Función de Inicialización)
-"""
-
-# ----------------------------------------------------
-# Funciones de consultas
-# ----------------------------------------------------
 
 def valida_usuario(usrname, passwd):
     try:
@@ -130,25 +106,3 @@ def valida_usuario(usrname, passwd):
     except Exception as e:
         print(f"Lib: models.py. Func: valida_usuario. Lin(107). Error al listar el usuario: {e}")
         return {"error": "Error interno del servidor al listar usuarios. Verifique la DB."}
-
-
-def check_user(username, password):
-    """Verifica si el usuario y la clave son correctos."""
-    with get_db() as db:
-        user = db.query(User).filter(User.username == username, User.password == password).first()
-        if user:
-            user.api_key = generate_api_key()
-            db.commit()
-            return {"user_id": user.id, "api_key": user.api_key}
-        return None
-
-def is_user_api_key(api_key):
-    """Verifica si el api_key corresponde a un usuario."""
-    with get_db() as db:
-        user = db.query(User).filter(User.api_key == api_key).first()
-        if user:
-            return user
-        return None
-# Genera la API-Key
-def generate_api_key():
-    return uuid.uuid4().hex
